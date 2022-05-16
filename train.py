@@ -50,7 +50,7 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
     net = net.train()
 
     best = wandb.config.best
-    pbar = tqdm(range(wandb.config.start_epoch, wandb.config.epoch))
+    pbar = tqdm(range(wandb.config.start_epoch, wandb.config.epoch), total=len(range(wandb.config.start_epoch, wandb.config.epoch)))
     for epoch in pbar:
         loss_meter.reset()
         acc_meter.reset()
