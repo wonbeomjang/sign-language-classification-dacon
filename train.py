@@ -10,7 +10,7 @@ from tqdm import tqdm
 import model
 from data import get_dataloader
 from utils import *
-from config import get_config
+from config import get_config, get_sweep_config
 
 
 def val(net: nn.Module, data_loader: DataLoader):
@@ -123,5 +123,12 @@ def get_objets():
     return net, train_loader, optimizer, lr_scheduler, wandb, run.id, val_loader
 
 
-if __name__ == "__main__":
+def _train():
     train(*get_objets())
+
+
+if __name__ == "__main__":
+    sweep_id = wandb.sweep(get_sweep_config())
+    count = 5
+    wandb.agent(sweep_id, function=_train, count=count, project='sign_language')
+
