@@ -21,8 +21,7 @@ def val(net: nn.Module, data_loader: DataLoader):
 
     net = net.eval()
 
-    pbar = tqdm(data_loader, total=len(data_loader))
-    for image, target in pbar:
+    for image, target in data_loader:
         image: torch.Tensor = image.to(device)
         target: torch.Tensor = target.to(device)
 
@@ -33,7 +32,6 @@ def val(net: nn.Module, data_loader: DataLoader):
 
         loss_meter.update(loss.mean().item())
         acc_meter.update((predict == target).sum().item() / image.shape[0])
-        pbar.set_description(f"Validate... Loss: {loss_meter.avg: .4f}, Acc: {acc_meter.avg: .4f}")
 
     result = {"val/acc": acc_meter.avg, "val/loss": loss_meter.avg}
 
