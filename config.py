@@ -32,12 +32,12 @@ def get_sweep_config():
         "name": "sign_language_sweep",
         "method": "random",
         "metric": {
-            "name": "val/acc",
+            "name": "test/acc",
             "goal": "maximize"
         },
         "parameters": {
             "epoch": {
-                "values": [10, 20, 50]
+                "values": [30, 50, 70]
             },
             "learning_rate": {
                 "min": 1e-4,
