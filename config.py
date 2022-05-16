@@ -32,7 +32,7 @@ def get_sweep_config():
         "name": "sign_language_sweep",
         "method": "random",
         "parameters": {
-            "epochs": {
+            "epoch": {
                 "values": [10, 20, 50]
             },
             "learning_rate": {
