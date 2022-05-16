@@ -31,8 +31,12 @@ def get_sweep_config():
     sweep_config = {
         "name": "sign_language_sweep",
         "method": "random",
+        "metric": {
+            "name": "test/acc",
+            "goal": "maximize"
+        },
         "parameters": {
-            "epochs": {
+            "epoch": {
                 "values": [10, 20, 50]
             },
             "learning_rate": {

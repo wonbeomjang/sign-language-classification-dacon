@@ -89,6 +89,14 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
 
         wandb.log(result)
         pbar.set_description(f"[{epoch + 1}/{wandb.config.epoch}] Loss: {loss:.4f}, Acc: {acc:.4f}")
+    wandb.save(os.path.join(wandb.config.run_dir, "last.pth"))
+    wandb.save(os.path.join(wandb.config.run_dir, "best.pth"))
+
+    net.load_state_dict(torch.load(os.path.join(wandb.config.run_dir, "best.pth"),
+                                   map_location=wandb.config.device)["state_dict"])
+
+    acc = val(net, val_loader)["val/acc"]
+    wandb.log({"test/acc": acc})
 
 
 def get_objets():
