@@ -13,14 +13,14 @@ model_map = dict(
 
 
 class Model(nn.Module):
-    def __init__(self, backbone="regnet", num_classes=10):
+    def __init__(self, pretrained=True, backbone="regnet", num_classes=10):
         super(Model, self).__init__()
-        self.backbone = model_map[backbone]
+        self.net = model_map[backbone](pretrained=pretrained)
 
         if isinstance(backbone, models.ResNet) or isinstance(backbone, models.RegNet):
-            self.backbone.fc = nn.Linear(512, num_classes)
+            self.net.fc = nn.Linear(512, num_classes)
         elif isinstance(backbone, models.VGG):
-            self.backbone.classifier = nn.Sequential(
+            self.net.classifier = nn.Sequential(
                 nn.Linear(512 * 7 * 7, 4096),
                 nn.ReLU(True),
                 nn.Dropout(),
@@ -31,4 +31,5 @@ class Model(nn.Module):
             )
 
     def forward(self, x):
-        return self.backbone(x)
+        return self.net(x)
+

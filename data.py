@@ -19,9 +19,9 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         file_name = self.df.iloc[index]['file_name']
-        label = self.df.iloc[index]['label']
+        label = int(self.df.iloc[index]['label'])
 
-        image = Image.open(f'{self.base_dir}/{file_name}')
+        image = Image.open(f'{self.base_dir}/train/{file_name}')
         image = self.transforms(image)
 
         return image, label
@@ -43,7 +43,7 @@ class TestDataset(data.Dataset):
     def __getitem__(self, index):
         file_name = self.df.iloc[index]['file_name']
 
-        image = Image.open(f'{self.base_dir}/{file_name}')
+        image = Image.open(f'{self.base_dir}/test/{file_name}')
         image = self.transforms(image)
 
         return image, file_name

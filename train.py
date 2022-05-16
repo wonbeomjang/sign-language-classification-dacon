@@ -107,9 +107,9 @@ if __name__ == "__main__":
 
     train_loader, val_loader = get_dataloader(config, config.val)
 
-    net = model.Model(config.backbone, config.num_classes).to(config.device)
+    net: nn.Module = model.Model(True, config.backbone, config.num_classes).to(config.device)
     optimizer = optim.Adam(net.parameters(), lr=config.learning_rate, weight_decay=1e-5)
-    lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, config.learning_rate, wandb.config.epoch * len(train_loader))
+    lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, config.learning_rate, config.epoch * len(train_loader))
 
     if not config.resume:
         run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir)) + 1}")
