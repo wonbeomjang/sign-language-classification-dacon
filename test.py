@@ -24,8 +24,8 @@ def test(net: nn.Module, data_loader: DataLoader, config):
 
         predict = predict.argmax(dim=1)
 
-        result["file_name"] += [file_name]
-        result["label"] += predict.item()
+        result["file_name"] += [*file_name]
+        result["label"] += predict.cpu().tolist()
 
     return result
 
@@ -46,4 +46,4 @@ if __name__ == "__main__":
 
     result = test(net, data_loader, config)
     df = pd.DataFrame.from_dict(result)
-    df.to_csv("submission.csv")
+    df.to_csv("submission.csv", index=False)

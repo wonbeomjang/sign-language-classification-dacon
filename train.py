@@ -91,7 +91,7 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
         pbar.set_description(f"[{epoch + 1}/{wandb.config.epoch}] Loss: {loss:.4f}, Acc: {acc:.4f}")
 
 
-if __name__ == "__main__":
+def get_objets():
     config = get_config()
 
     run_dir = os.path.join(os.getcwd(), config.checkpoint_dir, "run")
@@ -120,4 +120,8 @@ if __name__ == "__main__":
         run = wandb.init(id=save_info["run_id"], project='sign_language', resume="allow", dir=run_dir,
                          config=vars(config))
 
-    train(net, train_loader, optimizer, lr_scheduler, wandb, run.id, val_loader)
+    return net, train_loader, optimizer, lr_scheduler, wandb, run.id, val_loader
+
+
+if __name__ == "__main__":
+    train(*get_objets())
