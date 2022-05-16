@@ -15,12 +15,12 @@ model_map = dict(
 class Model(nn.Module):
     def __init__(self, backbone="regnet", num_classes=10):
         super(Model, self).__init__()
-        backbone = model_map[backbone]
+        self.backbone = model_map[backbone]
 
         if isinstance(backbone, models.ResNet) or isinstance(backbone, models.RegNet):
-            backbone.fc = nn.Linear(512, num_classes)
+            self.backbone.fc = nn.Linear(512, num_classes)
         elif isinstance(backbone, models.VGG):
-            backbone.classifier = nn.Sequential(
+            self.backbone.classifier = nn.Sequential(
                 nn.Linear(512 * 7 * 7, 4096),
                 nn.ReLU(True),
                 nn.Dropout(),
