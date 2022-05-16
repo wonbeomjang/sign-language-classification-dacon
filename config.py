@@ -11,7 +11,7 @@ parser.add_argument("--image_size", type=int, default=156, help="size of train i
 parser.add_argument("--batch_size", type=int, default=128, help="batch size")
 parser.add_argument("--start_epoch", type=int, default=0)
 parser.add_argument("--epoch", type=int, default=40, help="the number of epochs")
-parser.add_argument("--learning_rate", type=float, default=1e-5, help="learning rate")
+parser.add_argument("--learning_rate", type=float, default=1e-3, help="learning rate")
 parser.add_argument("--checkpoint_dir", default="checkpoint", help="check point directory")
 parser.add_argument("--num_classes", type=int, default=11, help="the number of classes")
 parser.add_argument("--resume", nargs='?', const=True, default=False, help="resume most recent training")

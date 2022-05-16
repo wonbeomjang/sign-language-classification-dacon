@@ -1,14 +1,9 @@
-import os
-import psutil
-import argparse
 from typing import Optional
 
 import wandb
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision.datasets as dataset
-import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -57,12 +52,11 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
     net = net.train()
 
     best = wandb.config.best
-
-    for epoch in range(wandb.config.start_epoch, wandb.config.epoch):
-        pbar = tqdm(data_loader, total=len(data_loader))
+    pbar = tqdm(range(wandb.config.start_epoch, wandb.config.epoch))
+    for epoch in pbar:
         loss_meter.reset()
         acc_meter.reset()
-        for image, target in pbar:
+        for image, target in data_loader:
             image: torch.Tensor = image.to(device)
             target: torch.Tensor = target.to(device)
             predict: torch.Tensor = net(image)
@@ -78,16 +72,15 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
             loss_meter.update(loss.mean().item())
             acc_meter.update((predict == target).sum().item() / image.shape[0])
 
-            pbar.set_description(f"[{epoch + 1}/{wandb.config.epoch}] Loss: {loss_meter.avg: .4f}, "
-                                 f"Acc: {acc_meter.avg: .4f}")
-
         result = {"train/acc": acc_meter.avg, "train/loss": loss_meter.avg}
         acc = acc_meter.avg
+        loss = loss_meter.avg
         if val_loader:
             with torch.no_grad():
                 val_result = val(net, val_loader)
                 result.update(val_result)
             acc = result["val/acc"]
+            loss = result["val/loss"]
 
         save_info = {"run_id": run_id, "state_dict": net.state_dict(), "optimizer": optimizer.state_dict(),
                      "lr_scheduler": lr_scheduler.state_dict(), "epoch": epoch, "best": best, "net": net}
@@ -97,6 +90,7 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
         torch.save(save_info, os.path.join(wandb.config.run_dir, "last.pth"))
 
         wandb.log(result)
+        pbar.set_description(f"[{epoch + 1}/{wandb.config.epoch}] Loss: {loss:.4f}, Acc: {acc:.4f}")
 
 
 if __name__ == "__main__":
