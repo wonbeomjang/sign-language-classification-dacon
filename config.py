@@ -32,7 +32,7 @@ def get_sweep_config():
         "name": "sign_language_sweep",
         "method": "random",
         "metric": {
-            "name": "test/acc",
+            "name": "val/acc",
             "goal": "maximize"
         },
         "parameters": {

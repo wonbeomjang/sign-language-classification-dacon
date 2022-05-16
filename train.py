@@ -111,22 +111,12 @@ def get_objets():
     optimizer = optim.Adam(net.parameters(), lr=config.learning_rate, weight_decay=1e-5)
     lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, config.learning_rate, config.epoch * len(train_loader))
 
-    if not config.resume:
-        run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir)) + 1}")
-        attempt_make_dir(run_dir)
-        config.run_dir = run_dir
-        run = wandb.init(project='sign_language', dir=run_dir, config=vars(config))
-    else:
-        run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir))}")
-        save_info = torch.load(os.path.join(run_dir, "best.pth"), map_location=config.device)
-        net.load_state_dict(save_info["state_dict"])
-        optimizer.load_state_dict(save_info["optimizer"])
-        lr_scheduler.load_state_dict(save_info["lr_scheduler"])
-        config.start_epoch = save_info["epoch"] + 1
-        config.best = save_info["best"]
-        config.run_dir = run_dir
-        run = wandb.init(id=save_info["run_id"], project='sign_language', resume="allow", dir=run_dir,
-                         config=vars(config))
+    run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir)) + 1}")
+    attempt_make_dir(run_dir)
+    config.run_dir = run_dir
+    run = wandb.init(project='sign_language', dir=run_dir, config=vars(config))
+    lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, wandb.config.learning_rate, wandb.config.epoch * len(train_loader))
+
 
     return net, train_loader, optimizer, lr_scheduler, wandb, run.id, val_loader
 
