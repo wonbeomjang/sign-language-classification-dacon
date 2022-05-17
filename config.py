@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--backbone', default="regnet")
 parser.add_argument("--dataset_dir", default="dataset")
 parser.add_argument("--val", nargs='?', const=False, default=True, help="validate")
-parser.add_argument("--image_size", type=int, default=256, help="size of train image")
+parser.add_argument("--image_size", type=int, default=224, help="size of train image")
 parser.add_argument("--batch_size", type=int, default=128, help="batch size")
 parser.add_argument("--start_epoch", type=int, default=0)
 parser.add_argument("--epoch", type=int, default=40, help="the number of epochs")
@@ -15,6 +15,7 @@ parser.add_argument("--learning_rate", type=float, default=1e-3, help="learning 
 parser.add_argument("--checkpoint_dir", default="checkpoint", help="check point directory")
 parser.add_argument("--num_classes", type=int, default=11, help="the number of classes")
 parser.add_argument("--resume", nargs='?', const=True, default=False, help="resume most recent training")
+parser.add_argument("--mixup", nargs='?', const=True, default=False, help="run with mixup")
 parser.add_argument("--cpu", nargs='?', default="cuda:0", const="cpu", help="whether use gpu or net")
 parser.add_argument("--data_dir", default="dataset", help="data directory")
 parser.add_argument("--num_workers", type=int, default=psutil.cpu_count())
@@ -44,7 +45,7 @@ def get_sweep_config():
                 "max": 1e-3
             },
             "backbone": {
-                "values": ["resnet50", "regnet", "vgg16", "resnet18"]
+                "values": ["vgg16", "resnet18", "resnet34", "resnet50", "resnet101", "regnet", "resnext50", "resnext101"]
             }
         }
     }

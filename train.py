@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 import wandb
@@ -6,11 +7,35 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import numpy as np
 
 import model
 from data import get_dataloader
 from utils import *
 from config import get_config
+
+
+def mixup(image, label, alpha=1.0):
+    """
+    출처: https://github.com/facebookresearch/mixup-cifar10/blob/eaff31ab397a90fbc0a4aac71fb5311144b3608b/train.py#L119
+    mixed_data코드 변형
+    """
+    alpha = random.random()
+    batch_size = image.shape[0]
+
+    index = torch.randperm(batch_size).to(image.device)
+    image = (1 - alpha) * image + alpha * image[index, :]
+    label1, label2 = label.to(image.device), label[index].to(image.device)
+
+    return image, label1, label2, alpha
+
+
+def mixup_criterion(criterion, pred, label1, label2, alpha):
+    """
+    출처: https://github.com/facebookresearch/mixup-cifar10/blob/eaff31ab397a90fbc0a4aac71fb5311144b3608b/train.py#L137
+    mixup_criterion 코드 사용
+    """
+    return criterion(pred, label1) * (1 - alpha) + criterion(pred, label2) * alpha
 
 
 def val(net: nn.Module, data_loader: DataLoader):
@@ -57,8 +82,14 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
         for image, target in data_loader:
             image: torch.Tensor = image.to(device)
             target: torch.Tensor = target.to(device)
-            predict: torch.Tensor = net(image)
-            loss: torch.Tensor = criterion(predict, target)
+
+            if wandb.config.mixup:
+                images, label1, label2, alpha = mixup(image, target)
+                predict: torch.Tensor = net(image)
+                loss = mixup_criterion(criterion, target, label1, label2, alpha)
+            else:
+                predict: torch.Tensor = net(image)
+                loss: torch.Tensor = criterion(predict, target)
 
             optimizer.zero_grad()
             loss.backward()

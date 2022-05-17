@@ -8,7 +8,9 @@ model_map = dict(
     resnet34=models.resnet34,
     resnet50=models.resnet50,
     resnet101=models.resnet101,
-    regnet=models.regnet_y_3_2gf
+    regnet=models.regnet_y_3_2gf,
+    resnext50=models.resnext50_32x4d,
+    resnext101=models.resnext101_32x8d,
 )
 
 
