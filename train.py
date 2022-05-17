@@ -10,7 +10,7 @@ from tqdm import tqdm
 import model
 from data import get_dataloader
 from utils import *
-from config import get_config, get_sweep_config
+from config import get_config
 
 
 def val(net: nn.Module, data_loader: DataLoader):
@@ -109,14 +109,12 @@ def get_objets():
 
     net: nn.Module = model.Model(True, config.backbone, config.num_classes).to(config.device)
     optimizer = optim.Adam(net.parameters(), lr=config.learning_rate, weight_decay=1e-5)
-    lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, config.learning_rate, config.epoch * len(train_loader))
 
     run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir)) + 1}")
     attempt_make_dir(run_dir)
     config.run_dir = run_dir
     run = wandb.init(project='sign_language', dir=run_dir, config=vars(config))
     lr_scheduler = optim.lr_scheduler.OneCycleLR(optimizer, wandb.config.learning_rate, wandb.config.epoch * len(train_loader))
-
 
     return net, train_loader, optimizer, lr_scheduler, wandb, run.id, val_loader
 
@@ -126,7 +124,5 @@ def _train():
 
 
 if __name__ == "__main__":
-    sweep_id = wandb.sweep(get_sweep_config())
-    count = 5
-    wandb.agent(sweep_id, function=_train, count=count)
+    _train()
 
