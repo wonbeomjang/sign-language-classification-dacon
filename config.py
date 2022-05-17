@@ -8,7 +8,7 @@ parser.add_argument('--backbone', default="regnet")
 parser.add_argument("--dataset_dir", default="dataset")
 parser.add_argument("--val", nargs='?', const=False, default=True, help="validate")
 parser.add_argument("--image_size", type=int, default=224, help="size of train image")
-parser.add_argument("--batch_size", type=int, default=128, help="batch size")
+parser.add_argument("--batch_size", type=int, default=32, help="batch size")
 parser.add_argument("--start_epoch", type=int, default=0)
 parser.add_argument("--epoch", type=int, default=40, help="the number of epochs")
 parser.add_argument("--learning_rate", type=float, default=1e-3, help="learning rate")
@@ -38,11 +38,11 @@ def get_sweep_config():
         },
         "parameters": {
             "epoch": {
-                "values": [30, 50, 70]
+                "values": [50, 70, 90, 110]
             },
             "learning_rate": {
-                "min": 1e-4,
-                "max": 1e-3
+                "min": 5e-4,
+                "max": 5e-3
             },
             "backbone": {
                 "values": ["vgg16", "resnet18", "resnet34", "resnet50", "resnet101", "regnet", "resnext50", "resnext101"]

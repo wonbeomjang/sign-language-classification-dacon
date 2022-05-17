@@ -7,12 +7,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import numpy as np
 
 import model
 from data import get_dataloader
 from utils import *
 from config import get_config
+from test import _test
 
 
 def mixup(image, label, alpha=1.0):
@@ -152,6 +152,8 @@ def get_objets():
 
 def _train():
     train(*get_objets())
+    _test()
+    wandb.save("submission.csv")
 
 
 if __name__ == "__main__":

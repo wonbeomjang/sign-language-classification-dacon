@@ -30,7 +30,7 @@ def test(net: nn.Module, data_loader: DataLoader, config):
     return result
 
 
-if __name__ == "__main__":
+def _test():
     config = get_config()
 
     run_dir = os.path.join(os.getcwd(), config.checkpoint_dir, "run")
@@ -63,4 +63,6 @@ if __name__ == "__main__":
         f.write("".join(out))
 
 
+if __name__ == "__main__":
+    _test()
 
