@@ -29,4 +29,4 @@ if __name__ == "__main__":
     temp_train_metadata["label"] = y
     train_metadata = temp_train_metadata
 
-    train_metadata("dataset/train.csv")
+    train_metadata.to_csv("dataset/train.csv")
