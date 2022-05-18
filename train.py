@@ -13,6 +13,7 @@ from data import get_dataloader
 from utils import *
 from config import get_config
 from test import _test
+from sam.sam import SAM
 
 
 def mixup(image, label, alpha=1.0):
@@ -64,7 +65,7 @@ def val(net: nn.Module, data_loader: DataLoader):
     return result
 
 
-def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, lr_scheduler, wandb, run_id,
+def train(net: nn.Module, data_loader: DataLoader, optimizer: SAM, lr_scheduler, wandb, run_id,
           val_loader: Optional[DataLoader]):
     acc_meter = AverageMeter()
     loss_meter = AverageMeter()
@@ -76,6 +77,18 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
 
     best = wandb.config.best
     pbar = tqdm(range(wandb.config.start_epoch, wandb.config.epoch), total=len(range(wandb.config.start_epoch, wandb.config.epoch)))
+
+    def loss_fn(net: nn.Module, image: torch.Tensor, target: torch.Tensor):
+        if wandb.config.mixup:
+            images, label1, label2, alpha = mixup(image, target)
+            predict: torch.Tensor = net(image)
+            loss = mixup_criterion(criterion, target, label1, label2, alpha)
+        else:
+            predict: torch.Tensor = net(image)
+            loss: torch.Tensor = criterion(predict, target)
+
+        return predict, loss
+
     for epoch in pbar:
         loss_meter.reset()
         acc_meter.reset()
@@ -83,19 +96,15 @@ def train(net: nn.Module, data_loader: DataLoader, optimizer: optim.Optimizer, l
             image: torch.Tensor = image.to(device)
             target: torch.Tensor = target.to(device)
 
-            if wandb.config.mixup:
-                images, label1, label2, alpha = mixup(image, target)
-                predict: torch.Tensor = net(image)
-                loss = mixup_criterion(criterion, target, label1, label2, alpha)
-            else:
-                predict: torch.Tensor = net(image)
-                loss: torch.Tensor = criterion(predict, target)
-
-            optimizer.zero_grad()
+            predict, loss = loss_fn(net, image, target)
             loss.backward()
-            optimizer.step()
-            lr_scheduler.step()
+            optimizer.first_step(zero_grad=True)
 
+            predict, loss = loss_fn(net, image, target)
+            loss.backward()
+            optimizer.first_step(zero_grad=True)
+
+            lr_scheduler.step()
             predict = predict.argmax(dim=1)
 
             loss_meter.update(loss.mean().item())
@@ -139,7 +148,8 @@ def get_objets():
     train_loader, val_loader = get_dataloader(config, config.val)
 
     net: nn.Module = model.Model(True, config.backbone, config.num_classes).to(config.device)
-    optimizer = optim.Adam(net.parameters(), lr=config.learning_rate, weight_decay=1e-5)
+    optimizer = optim.Adam
+    optimizer = SAM(net.parameters(), optimizer, lr=config.learning_rate, weight_decay=1e-5)
 
     run_dir = os.path.join(config.checkpoint_dir, "run", "exp" + f"{len(os.listdir(run_dir)) + 1}")
     attempt_make_dir(run_dir)

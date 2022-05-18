@@ -1,4 +1,9 @@
 import os
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from imblearn.over_sampling import RandomOverSampler
+
 from config import get_config
 
 if __name__ == "__main__":
@@ -17,4 +22,11 @@ if __name__ == "__main__":
     with open(f"{config.dataset_dir}/train.csv", "w") as f:
         f.write("".join(out))
 
+    train_metadata = pd.read_csv("dataset/train.csv")
 
+    oversample = RandomOverSampler(random_state=0)
+    temp_train_metadata, y = oversample.fit_resample(train_metadata.drop(columns=["label"]), train_metadata["label"])
+    temp_train_metadata["label"] = y
+    train_metadata = temp_train_metadata
+
+    train_metadata("dataset/train.csv")
